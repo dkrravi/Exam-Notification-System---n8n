@@ -1,11 +1,11 @@
-<img src="Workflow.png" width="500" style="margin-bottom:20px;">
+![Workflow](Workflow.png)
 
-<img src="Students Data.png" width="500" style="margin-bottom:20px;">
+![Students Data](Students Data.png)
 
-<img src="Teachers Data.png" width="500" style="margin-bottom:20px;">
+![Teachers Data](Teachers Data.png)
 
-<img src="S1.png" width="500" style="margin-bottom:20px;">
+![Student Notification](S1.png)
 
-<img src="T1.png" width="500" style="margin-bottom:20px;">
+![Teacher Notification](T1.png)
 
-<img src="T2.png" width="500">
+![Teacher Notification](T2.png)
