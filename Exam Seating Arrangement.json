@@ -1,0 +1,359 @@
+{
+  "name": "Exam Seating Arrangement",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -848,
+        -48
+      ],
+      "id": "8c86614e-4013-4e7c-aefb-6d570148c0c3",
+      "name": "Daily Trigger (6 AM)"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1W9Ealz899UwZB0MoMjf5VcTSN80Kdi9mmdA7aZoRsY4",
+          "mode": "list",
+          "cachedResultName": "Exam_Seating_Arrangement",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1W9Ealz899UwZB0MoMjf5VcTSN80Kdi9mmdA7aZoRsY4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1W9Ealz899UwZB0MoMjf5VcTSN80Kdi9mmdA7aZoRsY4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -576,
+        -224
+      ],
+      "id": "6495127e-5503-4d2b-833c-2f2328335ce0",
+      "name": "Fetch Exam Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9xwJ7qjKXU2PhDhB",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "372300c5-1598-4f61-95f4-8d325a219166",
+              "leftValue": "={{ $json.Exam_Date }}",
+              "rightValue": "={{ new Date().toISOString().split('T')[0] }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -368,
+        -240
+      ],
+      "id": "df2c0aeb-bb6d-4644-bfe6-46fd18e50ac1",
+      "name": "Check Exam Date (Today)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Exam Hall Seating Arrangement for Today",
+        "message": "=<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n  <h2 style=\"color: #00539C;\">Dr N.G.P Arts and Science College</h2>\n  <h3 style=\"margin-top: 0;\">Controller of Examinations (COE)</h3>\n  <hr style=\"border: 1px solid #ccc;\">\n  <p>Hi <strong>{{ $json[\"Name\"] }}</strong>,</p>\n  <p><strong>Subject:</strong> {{ $json[\"Subject\"] }}</p>\n  <p>Here is your <strong>seating arrangement</strong> for today (<strong>{{ $json[\"Exam_Date\"] }}</strong>):</p>\n  <table style=\"border-collapse: collapse; width: 60%; margin: 10px 0;\">\n    <tr>\n      <th style=\"border: 1px solid #ccc; padding: 8px; text-align: left; background-color: #f2f2f2;\">Class</th>\n      <td style=\"border: 1px solid #ccc; padding: 8px;\">{{ $json[\"Class\"] }}</td>\n    </tr>\n    <tr>\n      <th style=\"border: 1px solid #ccc; padding: 8px; text-align: left; background-color: #f2f2f2;\">Roll Number</th>\n      <td style=\"border: 1px solid #ccc; padding: 8px;\">{{ $json[\"Roll_Number\"] }}</td>\n    </tr>\n    <tr>\n      <th style=\"border: 1px solid #ccc; padding: 8px; text-align: left; background-color: #f2f2f2;\">Bench Number</th>\n      <td style=\"border: 1px solid #ccc; padding: 8px;\">{{ $json[\"Bench_Number\"] }}</td>\n    </tr>\n  </table>\n  <p>Please arrive <strong>15 minutes before the exam</strong>.</p>\n  <p style=\"margin-top: 20px;\">Good luck!<br>\n  <strong>Controller of Examinations (COE)<br>Dr N.G.P Arts and Science College</strong></p>\n</div>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        -240
+      ],
+      "id": "b1327b6e-230c-461e-8173-79b151d24983",
+      "name": "Send Seating Mail to Students",
+      "webhookId": "a5141f9e-be57-4b19-9a20-2d33f67b4ec9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QSCtPYYV1yVpF4bt",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const students = $input.all();\nlet html = `\n<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">\n  <h2 style=\"color: #00539C;\">Exam Seating for II MSc CSDA</h2>\n  <p>Dear Teacher,</p>\n  <p>Your class students are writing exams today (<strong>${new Date().toISOString().split('T')[0]}</strong>) as per the following schedule. Please make sure everyone is following the exam rules and maintaining discipline.</p>\n  <table style=\"border-collapse: collapse; width: 100%; margin: 10px 0;\">\n    <tr>\n      <th style=\"border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2;\">Name</th>\n      <th style=\"border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2;\">Class</th>\n      <th style=\"border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2;\">Roll No</th>\n      <th style=\"border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2;\">Subject</th>\n      <th style=\"border: 1px solid #ccc; padding: 8px; background-color: #f2f2f2;\">Bench</th>\n    </tr>\n`;\nfor (const student of students) {\n  html += `\n    <tr>\n      <td style=\"border: 1px solid #ccc; padding: 8px;\">${student.json.Name}</td>\n      <td style=\"border: 1px solid #ccc; padding: 8px;\">${student.json.Class}</td>\n      <td style=\"border: 1px solid #ccc; padding: 8px;\">${student.json.Roll_Number}</td>\n      <td style=\"border: 1px solid #ccc; padding: 8px;\">${student.json.Subject}</td>\n      <td style=\"border: 1px solid #ccc; padding: 8px;\">${student.json.Bench_Number}</td>\n    </tr>`;\n}\nhtml += `\n  </table>\n  <p>Regards,<br><strong>Controller of Examinations (COE)<br>Dr N.G.P Arts and Science College</strong></p>\n</div>\n`;\nreturn [{\n  json: {\n    teacherMailBody: html\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -336,
+        0
+      ],
+      "id": "0f4bc363-966a-41a5-be08-590627f80b82",
+      "name": "Build Teacher Summary Table"
+    },
+    {
+      "parameters": {
+        "sendTo": "dhanyaravi3010@gmail.com",
+        "subject": "=Exam Seating Summary – {{ new Date().toISOString().split('T')[0] }}",
+        "message": "={{ $json.teacherMailBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        0
+      ],
+      "id": "cfc50121-55e1-47a7-b381-6db4547285b6",
+      "name": "Send Summary Mail to Teacher",
+      "webhookId": "0b897680-7328-4467-b22e-34dcf427da33",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QSCtPYYV1yVpF4bt",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1tbK_VnpXBswpjIoJxoDtvWrj2LJ8GejOD5a8HZLQdzw",
+          "mode": "list",
+          "cachedResultName": "Teachers Exam Schedule",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tbK_VnpXBswpjIoJxoDtvWrj2LJ8GejOD5a8HZLQdzw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tbK_VnpXBswpjIoJxoDtvWrj2LJ8GejOD5a8HZLQdzw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -576,
+        192
+      ],
+      "id": "45590f75-afb9-4f01-9d4b-9fd42ef18698",
+      "name": "Teacher Duties",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "9xwJ7qjKXU2PhDhB",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  const examDate = new Date(item.json.Exam_Date);\n  const today = new Date();\n  const examDateStr = examDate.toISOString().split('T')[0];\n  const todayStr = today.toISOString().split('T')[0];\n  return {\n    json: {\n      ...item.json,\n      Exam_Date_Str: examDateStr,\n      Today_Str: todayStr\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -416,
+        192
+      ],
+      "id": "8925cecb-956e-4d08-9d5f-02c57ec4798e",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8447df58-38be-4931-8cff-0465c48043e3",
+              "leftValue": "={{ $json.Exam_Date }}",
+              "rightValue": "={{ $json.Today_Str }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -272,
+        192
+      ],
+      "id": "99b814cf-cdf4-466c-a0d7-2621e138add9",
+      "name": "Filter Today’s Duties"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Teacher Duties').item.json.Teacher_Email }}",
+        "subject": "=Exam Duty Assignment – {{ $json[\"Exam_Date\"] }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">   <h2 style=\"color: #00539C;\">Exam Duty Notification</h2>   <p>Dear {{ $json[\"Teacher_Name\"] }},</p>   <p>You are assigned exam invigilation duty for the following:</p>   <ul>     <li><strong>Date:</strong> {{ $json[\"Exam_Date\"] }}</li>     <li><strong>Class:</strong> {{ $json[\"Class\"] }}</li>     <li><strong>Time:</strong> {{ $json[\"Time\"] }}</li>   </ul>   <p>Please report 15 minutes before the scheduled time and make sure all students follow the exam rules strictly.</p>   <p>Regards,<br><strong>Controller of Examinations (COE)<br>Dr N.G.P Arts and Science College</strong></p> </div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        192
+      ],
+      "id": "59ed2824-d993-4abc-ba45-6cd1cff130b0",
+      "name": "Send Teacher Duty Mail",
+      "webhookId": "1326d474-f52b-4df5-a786-9094234b0d25",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QSCtPYYV1yVpF4bt",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Daily Trigger (6 AM)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Exam Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Teacher Duties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Exam Data": {
+      "main": [
+        [
+          {
+            "node": "Check Exam Date (Today)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Exam Date (Today)": {
+      "main": [
+        [
+          {
+            "node": "Send Seating Mail to Students",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Teacher Summary Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Seating Mail to Students": {
+      "main": [
+        []
+      ]
+    },
+    "Build Teacher Summary Table": {
+      "main": [
+        [
+          {
+            "node": "Send Summary Mail to Teacher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Teacher Duties": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Filter Today’s Duties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Today’s Duties": {
+      "main": [
+        [
+          {
+            "node": "Send Teacher Duty Mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "797f9ba3-7907-46dd-8aca-4f768901a8c9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "64dd4211ba6f365592ac78b7e6d0f8e0e37b593cd2a760c4d8c14bb6bc31808f"
+  },
+  "id": "g4iSSWVXo6vGISTt",
+  "tags": []
+}
